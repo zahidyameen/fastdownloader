@@ -16,11 +16,15 @@
 
 package com.example.fastdownloader.database;
 
+import static com.example.fastdownloader.utils.Utils.status;
+
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.example.fastdownloader.Status;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +61,8 @@ public class AppDbHelper implements DbHelper {
                 model.setTotalBytes(cursor.getLong(cursor.getColumnIndex(DownloadModel.TOTAL_BYTES)));
                 model.setDownloadedBytes(cursor.getLong(cursor.getColumnIndex(DownloadModel.DOWNLOADED_BYTES)));
                 model.setLastModifiedAt(cursor.getLong(cursor.getColumnIndex(DownloadModel.LAST_MODIFIED_AT)));
+                model.setSpeed(cursor.getLong(cursor.getColumnIndex(DownloadModel.SPEED)));
+                model.setStatus(status(cursor.getInt(cursor.getColumnIndex(DownloadModel.STATUS))));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -80,11 +86,14 @@ public class AppDbHelper implements DbHelper {
             values.put(DownloadModel.TOTAL_BYTES, model.getTotalBytes());
             values.put(DownloadModel.DOWNLOADED_BYTES, model.getDownloadedBytes());
             values.put(DownloadModel.LAST_MODIFIED_AT, model.getLastModifiedAt());
+            values.put(DownloadModel.SPEED, model.getSpeed());
+            values.put(DownloadModel.STATUS, status(model.getStatus()));
             db.insert(TABLE_NAME, null, values);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     @Override
     public void update(DownloadModel model) {
@@ -97,6 +106,8 @@ public class AppDbHelper implements DbHelper {
             values.put(DownloadModel.TOTAL_BYTES, model.getTotalBytes());
             values.put(DownloadModel.DOWNLOADED_BYTES, model.getDownloadedBytes());
             values.put(DownloadModel.LAST_MODIFIED_AT, model.getLastModifiedAt());
+            values.put(DownloadModel.SPEED, model.getSpeed());
+            values.put(DownloadModel.STATUS, status(model.getStatus()));
             db.update(TABLE_NAME, values, DownloadModel.ID + " = ? ",
                     new String[]{String.valueOf(model.getId())});
         } catch (Exception e) {
@@ -148,7 +159,42 @@ public class AppDbHelper implements DbHelper {
                     model.setTotalBytes(cursor.getLong(cursor.getColumnIndex(DownloadModel.TOTAL_BYTES)));
                     model.setDownloadedBytes(cursor.getLong(cursor.getColumnIndex(DownloadModel.DOWNLOADED_BYTES)));
                     model.setLastModifiedAt(cursor.getLong(cursor.getColumnIndex(DownloadModel.LAST_MODIFIED_AT)));
+                    model.setSpeed(cursor.getLong(cursor.getColumnIndex(DownloadModel.SPEED)));
+                    model.setStatus(status(cursor.getInt(cursor.getColumnIndex(DownloadModel.STATUS))));
 
+                    models.add(model);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return models;
+    }
+
+    @SuppressLint("Range")
+    @Override
+    public List<DownloadModel> getAllModels() {
+        List<DownloadModel> models = new ArrayList<>();
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME +" order by "+DownloadModel.LAST_MODIFIED_AT +" ASC", null);
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    DownloadModel model = new DownloadModel();
+                    model.setId(cursor.getInt(cursor.getColumnIndex(DownloadModel.ID)));
+                    model.setUrl(cursor.getString(cursor.getColumnIndex(DownloadModel.URL)));
+                    model.setETag(cursor.getString(cursor.getColumnIndex(DownloadModel.ETAG)));
+                    model.setDirPath(cursor.getString(cursor.getColumnIndex(DownloadModel.DIR_PATH)));
+                    model.setFileName(cursor.getString(cursor.getColumnIndex(DownloadModel.FILE_NAME)));
+                    model.setTotalBytes(cursor.getLong(cursor.getColumnIndex(DownloadModel.TOTAL_BYTES)));
+                    model.setDownloadedBytes(cursor.getLong(cursor.getColumnIndex(DownloadModel.DOWNLOADED_BYTES)));
+                    model.setLastModifiedAt(cursor.getLong(cursor.getColumnIndex(DownloadModel.LAST_MODIFIED_AT)));
+                    model.setSpeed(cursor.getLong(cursor.getColumnIndex(DownloadModel.SPEED)));
+                    model.setStatus(status(cursor.getInt(cursor.getColumnIndex(DownloadModel.STATUS))));
                     models.add(model);
                 } while (cursor.moveToNext());
             }

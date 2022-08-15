@@ -59,6 +59,11 @@ public class NoOpsDbHelper implements DbHelper {
     }
 
     @Override
+    public List<DownloadModel> getAllModels() {
+        return null;
+    }
+
+    @Override
     public void clear() {
 
     }

@@ -16,6 +16,8 @@
 
 package com.example.fastdownloader.database;
 
+import com.example.fastdownloader.Status;
+
 /**
  * Created by anandgaurav on 14-11-2017.
  */
@@ -30,6 +32,9 @@ public class DownloadModel {
     static final String TOTAL_BYTES = "total_bytes";
     static final String DOWNLOADED_BYTES = "downloaded_bytes";
     static final String LAST_MODIFIED_AT = "last_modified_at";
+    static final String STATUS = "last_modified_at";
+    static final String SPEED = "last_modified_at";
+
 
     private int id;
     private String url;
@@ -39,6 +44,25 @@ public class DownloadModel {
     private long totalBytes;
     private long downloadedBytes;
     private long lastModifiedAt;
+
+    private long speed;
+    private Status status;
+
+    public void setSpeed(long speed) {
+        this.speed = speed;
+    }
+    public Status getStatus() {
+        return status;
+    }
+
+    public long getSpeed() {
+        return speed;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
 
     public int getId() {
         return id;

@@ -2,9 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.fastdownloader">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -16,8 +18,27 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FastDownloader"
         tools:targetApi="31">
+        <receiver
+            android:name=".sample.DownloadBroadcast"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.fastdownloader.sample.DOWNLOAD"/>
+                <action android:name="com.example.fastdownloader.sample.PAUSE"/>
+                <action android:name="com.example.fastdownloader.sample.RESUME"/>
+                <action android:name="com.example.fastdownloader.sample.CANCEL"/>
+                <action android:name="com.example.fastdownloader.sample.CANCEL_ALL"/>
+                <action android:name="com.example.fastdownloader.sample.CLEAN_UP"/>
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".sample.DownloadService"
+            android:enabled="true"
+            android:exported="true"/>
+
         <activity
-            android:name=".MainActivity"
+            android:name=".sample.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

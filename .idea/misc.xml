@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/QR_Scanner/FastDownloader/app/src/main/res/drawable/border_black.xml" value="0.167" />
         <entry key="..\:/QR_Scanner/FastDownloader/app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="..\:/QR_Scanner/FastDownloader/app/src/main/res/layout/download_item_view.xml" value="0.25181159420289856" />
       </map>
     </option>
   </component>

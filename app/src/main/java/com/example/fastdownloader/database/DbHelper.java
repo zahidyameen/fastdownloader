@@ -35,6 +35,7 @@ public interface DbHelper {
     void remove(int id);
 
     List<DownloadModel> getUnwantedModels(int days);
+    List<DownloadModel> getAllModels();
 
     void clear();
 

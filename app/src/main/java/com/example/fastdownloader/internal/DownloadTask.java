@@ -96,10 +96,12 @@ public class DownloadTask {
                 if (file.exists()) {
                     request.setTotalBytes(model.getTotalBytes());
                     request.setDownloadedBytes(model.getDownloadedBytes());
+                    request.setSpeed(model.getSpeed());
                 } else {
                     removeNoMoreNeededModelFromDatabase();
                     request.setDownloadedBytes(0);
                     request.setTotalBytes(0);
+                    request.setSpeed(0);
                     model = null;
                 }
             }
@@ -207,6 +209,7 @@ public class DownloadTask {
                 bytePerSecond+=byteCount;
                 if((System.currentTimeMillis()-lastTime)>=1000){
                     request.setReceivedBytes(bytePerSecond);
+                    request.setSpeed(bytePerSecond);
                     bytePerSecond=0;
                     lastTime=System.currentTimeMillis();
                 }

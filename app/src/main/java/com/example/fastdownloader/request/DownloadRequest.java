@@ -51,6 +51,10 @@ public class DownloadRequest {
     private long downloadedBytes;
     private long totalBytes;
 
+
+
+    private long speed;
+
     public long getReceivedBytes() {
         return receivedBytes;
     }
@@ -88,8 +92,16 @@ public class DownloadRequest {
                         builder.connectTimeout :
                         getConnectTimeoutFromConfig();
         this.userAgent = builder.userAgent;
+
     }
 
+    public long getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(long speed) {
+        this.speed = speed;
+    }
     public Priority getPriority() {
         return priority;
     }

@@ -16,10 +16,20 @@
 
 package com.example.fastdownloader.utils;
 
+import static com.example.fastdownloader.Status.CANCELLED;
+import static com.example.fastdownloader.Status.COMPLETED;
+import static com.example.fastdownloader.Status.FAILED;
+import static com.example.fastdownloader.Status.PAUSED;
+import static com.example.fastdownloader.Status.QUEUED;
+import static com.example.fastdownloader.Status.RUNNING;
+import static com.example.fastdownloader.Status.UNKNOWN;
+
+
 import android.content.Context;
 import android.os.Environment;
 
 import com.example.fastdownloader.Constants;
+import com.example.fastdownloader.Status;
 import com.example.fastdownloader.core.Core;
 import com.example.fastdownloader.database.DownloadModel;
 import com.example.fastdownloader.httpclient.HttpClient;
@@ -111,6 +121,52 @@ public final class Utils {
             }
         }
     }
+    public static int status(Status status) {
+        switch (status){
+            case RUNNING:
+                return 1;
+
+            case PAUSED:
+                return 2;
+
+            case COMPLETED:
+                return 3;
+
+            case CANCELLED:
+                return 4;
+
+            case FAILED:
+                return 5;
+
+            case UNKNOWN:
+                return 6;
+            default:
+                return 0;
+        }
+    }
+    public static Status status(int status) {
+        switch (status){
+            case 1:
+                return RUNNING;
+            case 2:
+                return PAUSED;
+
+            case 3:
+                return COMPLETED;
+
+            case 4:
+                return CANCELLED;
+
+            case 5:
+                return FAILED;
+
+            case 6:
+                return UNKNOWN;
+            default:
+                return QUEUED;
+        }
+    }
+
 
     public static void deleteTempFileAndDatabaseEntryInBackground(final String path, final int downloadId) {
         Core.getInstance().getExecutorSupplier().forBackgroundTasks()
