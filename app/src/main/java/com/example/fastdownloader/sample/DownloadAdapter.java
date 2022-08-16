@@ -1,12 +1,13 @@
 package com.example.fastdownloader.sample;
 
 
-
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,33 +35,52 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull DownloadAdapter.ViewHolder holder, int position) {
       DownloadModel model=list.get(position);
+      int pr=(int)((model.getDownloadedBytes()*1000)/model.getTotalBytes());
+      holder.progressBarOne.setProgress(pr);
       switch (model.getStatus()){
           case RUNNING:
+              Log.e("dlkdkkdkd","running");
               holder.pause.setVisibility(View.VISIBLE);
               holder.start.setVisibility(View.GONE);
               holder.resume.setVisibility(View.GONE);
               holder.cancel.setVisibility(View.GONE);
               holder.textViewProgressOne.setVisibility(View.VISIBLE);
-              holder.textViewProgressOne.setText(model.getDownloadedBytes()+"/"+model.getDownloadedBytes());
-              break;
-          case PAUSED:
-          case FAILED:
-              holder.pause.setVisibility(View.GONE);
-              holder.start.setVisibility(View.GONE);
-              holder.resume.setVisibility(View.VISIBLE);
-              holder.cancel.setVisibility(View.GONE);
-              holder.textViewProgressOne.setVisibility(View.GONE);
+              holder.textViewProgressOne.setText(model.getDownloadedBytes()+"/"+model.getTotalBytes());
               break;
           case COMPLETED:
-          case CANCELLED:
-          case UNKNOWN:
-          default:
+              Log.e("dlkdkkdkd","COMPLETED");
               holder.pause.setVisibility(View.GONE);
               holder.start.setVisibility(View.GONE);
               holder.resume.setVisibility(View.GONE);
               holder.cancel.setVisibility(View.GONE);
-              holder.textViewProgressOne.setVisibility(View.GONE);
+              holder.textViewProgressOne.setVisibility(View.VISIBLE);
+              holder.textViewProgressOne.setText(model.getDownloadedBytes()+"/"+model.getTotalBytes());
               break;
+          case UNKNOWN:
+              Log.e("dlkdkkdkd","UNKNOWN");
+              holder.pause.setVisibility(View.GONE);
+              holder.start.setVisibility(View.GONE);
+              holder.resume.setVisibility(View.GONE);
+              holder.cancel.setVisibility(View.GONE);
+              holder.textViewProgressOne.setVisibility(View.VISIBLE);
+              holder.textViewProgressOne.setText(model.getDownloadedBytes()+"/"+model.getTotalBytes());
+              break;
+          case PAUSED:
+              Log.e("dlkdkkdkd","PAUSED");
+          case FAILED:
+              Log.e("dlkdkkdkd","FAILED");
+          case CANCELLED:
+              Log.e("dlkdkkdkd","FAILED");
+          default:
+              Log.e("dlkdkkdkd","Qued");
+              holder.pause.setVisibility(View.GONE);
+              holder.start.setVisibility(View.GONE);
+              holder.resume.setVisibility(View.VISIBLE);
+              holder.cancel.setVisibility(View.GONE);
+              holder.textViewProgressOne.setVisibility(View.VISIBLE);
+              holder.textViewProgressOne.setText(model.getDownloadedBytes()+"/"+model.getTotalBytes());
+              break;
+
       }
 
     }
@@ -69,14 +89,15 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.ViewHo
     public int getItemCount() {
         return list.size();
     }
-
-    public void refresh() {
+    public void refresh(List<DownloadModel> list) {
+        this.list=list;
         notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private Button start,pause,resume,cancel;
         private TextView textViewProgressOne;
+        private ProgressBar progressBarOne;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             start=itemView.findViewById(R.id.buttonStart);
@@ -84,6 +105,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.ViewHo
             resume=itemView.findViewById(R.id.buttonResum);
             cancel=itemView.findViewById(R.id.buttonCancel);
             textViewProgressOne=itemView.findViewById(R.id.textViewProgressOne);
+            progressBarOne=itemView.findViewById(R.id.progressBarOne);
 
         }
     }

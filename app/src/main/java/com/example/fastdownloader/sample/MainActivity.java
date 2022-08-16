@@ -11,13 +11,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.fastdownloader.Error;
@@ -35,6 +40,7 @@ import com.example.fastdownloader.database.DownloadModel;
 import com.example.fastdownloader.database.NoOpsDbHelper;
 import com.example.fastdownloader.internal.ComponentHolder;
 import com.example.fastdownloader.utils.Utils;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -43,24 +49,31 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 
-public class MainActivity extends BaseClass {
+public class MainActivity extends BaseClass  implements DownloadListener{
     private DownloadAdapter downloadAdapter;
     private RecyclerView recyclerView;
+    private FloatingActionButton floating;
+    private DownloadService myService;
+    private boolean bound = false;
+    private List<DownloadModel> list;
     public  final int STORAGE_PERMISSION_CODE = 20;
     private  String[] s={Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE};
-    String url="https://rr2---sn-uxaxovg23-aixl.googlevideo.com/videoplayback?expire=1660411515&ei=Gor3YujCO-v6xN8Pgdq9kAM&ip=103.149.33.18&id=o-ANd1MQHqw1b1GPSRB5_A9FRhuDWtR1JMqSEHF7pugT7O&itag=137&aitags=133%2C134%2C135%2C136%2C137%2C160%2C242%2C243%2C244%2C247%2C248%2C278%2C394%2C395%2C396%2C397%2C398%2C399&source=youtube&requiressl=yes&mh=Go&mm=31%2C29&mn=sn-uxaxovg23-aixl%2Csn-4wg7zne7&ms=au%2Crdu&mv=m&mvi=2&pl=24&initcwndbps=203750&spc=lT-KhipWk18-7WjEfUrto3BG9XjROHurh56q5HeJQXQA&vprv=1&mime=video%2Fmp4&ns=m0mkOmBGh5p6hfAzFpefSYMH&gir=yes&clen=29818073&dur=304.360&lmt=1660343365841371&mt=1660389660&fvip=5&keepalive=yes&fexp=24001373%2C24007246&c=WEB&rbqsm=fr&txp=5535434&n=E0UvUO1ZiObpOw&sparams=expire%2Cei%2Cip%2Cid%2Caitags%2Csource%2Crequiressl%2Cspc%2Cvprv%2Cmime%2Cns%2Cgir%2Cclen%2Cdur%2Clmt&sig=AOq0QJ8wRQIgYldUo7Gvc94spUJK-cgdqAoACbuxeSHYtF7EF9pTn8ACIQDSlUk8psCj-gQFPt2cNmD4yvtpLaEPOJ1LL_BwNIBuig%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRAIgBdqKTKVzVL2g365QPS0ERf5XuIjvqRwWMNk2BEwnrRACIE2ZRRS9Ml_bXA052wCfU5JANgGOXDOtayyhVhiIsibU&pot=GpIBCmX4pvHN_P5wte6RsEavITvFwtReq-BxiwMWqXCIjtPBgt3QWUggY9KKqFDSV64ZPT4MOkAYUNnsbKUmVrGv63paiPqwVd15J6ADAcN22gRiulg79e0tH2It_eDuwFCbmBu6rbY6XxIpAX04kIirLINbOvScwGSX73wD6OYIBbqA0DMrzYXQEF_E_5z-XksImkc%3D";
-
+    String url="https://rr1---sn-4wg7ln7e.googlevideo.com/videoplayback?expire=1660645886&ei=nh37Yuv8E_HYxN8Pmu-EyAw&ip=103.149.33.18&id=o-ADOxDn-NwRnAZ2EJds45T-B8P8XYfOjMqqfCHECGwhPi&itag=134&aitags=133%2C134%2C135%2C136%2C137%2C160%2C242%2C243%2C244%2C247%2C248%2C278&source=youtube&requiressl=yes&spc=lT-KhvaRY-jV8QtDxLMIMgYujj13vc8&vprv=1&mime=video%2Fmp4&ns=JIKyUb-ktOZGkyL4chCu5XsH&gir=yes&clen=25927362&dur=640.272&lmt=1658849633217989&keepalive=yes&fexp=24001373,24007246&c=WEB&rbqsm=fr&txp=5432434&n=MdIV7qI01hk8mw&sparams=expire%2Cei%2Cip%2Cid%2Caitags%2Csource%2Crequiressl%2Cspc%2Cvprv%2Cmime%2Cns%2Cgir%2Cclen%2Cdur%2Clmt&sig=AOq0QJ8wRAIgdIN6mQBHDc04hQquBv584C6Qez-n7hXSfyo961REbGwCIGfQsiEdYFV9e_KHQPFm0OaCxXP0TAWHi1wOYEIH2wXV&pot=GpsBCm5JU1IM9ftWoEoP7Zz6gDHkYB2jW5GGKf9OWb31x-26JfEiE-HYaddiCVyr-GOWiPE2hxTvzy420mxcQqKua8TECRV_8hpn4gOr_uyEreqxTT1fZPndOYWTFTtIsLSC5jCianW0UKvp_o80gquuUhIpAX04kIjbV42x8mtvZfdXph-8lUARnTUffXM6uxGbdT2GIpcJ4DZmNGs%3D&redirect_counter=1&rm=sn-uxaxovg23-aixe7s&req_id=1827e0fff0e1a3ee&cms_redirect=yes&cmsv=e&mh=o4&mm=29&mn=sn-4wg7ln7e&ms=rdu&mt=1660624146&mv=m&mvi=1&pl=24&lsparams=mh,mm,mn,ms,mv,mvi,pl&lsig=AG3C_xAwRgIhAOJFXl7MhSd1qfqTQU3YYR7k2O7R4PpbGjjyaCMG5671AiEAhz-akrevmpPs6eHjIdwmZBTy-uBjzLwOJj5a9HeuCZM%3D";
     String name=System.currentTimeMillis()+".mp4";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Intent intent = new Intent(MainActivity.this,DownloadService.class); // Build the intent for the service
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent);
-        }else {
-            startService(intent);
-        }
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.example.fastdownloader.sample.Strings.DOWNLOAD");
+        filter.addAction("com.example.fastdownloader.sample.Strings.PAUSE");
+        filter.addAction("com.example.fastdownloader.sample.Strings.RESUME");
+        filter.addAction("com.example.fastdownloader.sample.Strings.CANCEL");
+        filter.addAction("com.example.fastdownloader.sample.Strings.CANCEL_ALL");
+        filter.addAction("com.example.fastdownloader.sample.Strings.CLEAN_UP");
+        DownloadBroadcast myReceiver = new DownloadBroadcast();
+        registerReceiver(myReceiver, filter);
         // Enabling database for resume support even after the application is killed:
         PRDownloaderConfig config = PRDownloaderConfig.newBuilder()
                 .setDatabaseEnabled(true)
@@ -71,31 +84,62 @@ public class MainActivity extends BaseClass {
         PRDownloader.initialize(getApplicationContext(), config);
         checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, STORAGE_PERMISSION_CODE);
         recyclerView=findViewById(R.id.rec);
+        floating=findViewById(R.id.floating);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        List<DownloadModel> list= ComponentHolder.getInstance().getDbHelper().getAllModels();
+         list= ComponentHolder.getInstance().getDbHelper().getAllModels();
+        Log.e("sssskkssk","MainActivity:"+list.size());
         downloadAdapter=new DownloadAdapter(this,list);
+        recyclerView.setAdapter(downloadAdapter);
+        floating.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                download();
+            }
+        });
 
 
     }
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(MessageEvent event) {
-        // Do something
-        if(downloadAdapter!=null)
-            downloadAdapter.refresh();
-    }
     @Override
-    protected void onResume() {
-        super.onResume();
-        DownloadHolder.getInstnace().register(this);
+    protected void onStart() {
+        super.onStart();
+        // bind to Service
+        Intent intent = new Intent(this, DownloadService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
+
     @Override
-    protected void onPause() {
-        super.onPause();
-        DownloadHolder.getInstnace().unregister(this);
+    protected void onStop() {
+        super.onStop();
+        // Unbind from service
+        if (bound) {
+            myService.setCallbacks(null); // unregister
+            unbindService(serviceConnection);
+            bound = false;
+        }
     }
+
+    /** Callbacks for service binding, passed to bindService() */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // cast the IBinder and get MyService instance
+            DownloadService.LocalBinder binder = (DownloadService.LocalBinder) service;
+            myService = binder.getService();
+            bound = true;
+            myService.setCallbacks(MainActivity.this); // register
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            bound = false;
+        }
+    };
+
 
 
     private void download(){
+        Log.e("sssskkssk","MainActivity");
 //        int downloadId = PRDownloader.download(this,url,name)
 //                .build()
 //                .setOnStartOrResumeListener(new OnStartOrResumeListener() {
@@ -140,12 +184,14 @@ public class MainActivity extends BaseClass {
 //                    }
 //                });
 
+
         Intent intent1 = new Intent();
         intent1.putExtra(Strings.URL,url);
         intent1.putExtra(Strings.NAME,name);
-        intent1.setAction(Strings.DOWNLOAD);
+        intent1.setAction("com.example.fastdownloader.sample.Strings.DOWNLOAD");
         intent1.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         sendBroadcast(intent1);
+        Log.e("sssskkssk","MainActivity");
     }
     public void checkPermission(String permission, int requestCode)
     {
@@ -155,7 +201,7 @@ public class MainActivity extends BaseClass {
             ActivityCompat.requestPermissions(MainActivity.this,  s , requestCode);
         }
         else {
-            download();
+           // download();
             Toast.makeText(MainActivity.this, "Permission already granted", Toast.LENGTH_SHORT).show();
         }
     }
@@ -172,7 +218,7 @@ public class MainActivity extends BaseClass {
         if (requestCode == STORAGE_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(MainActivity.this, "Camera Permission Granted", Toast.LENGTH_SHORT) .show();
-                download();
+               // download();
             }
             else {
                 Toast.makeText(MainActivity.this, "Camera Permission Denied", Toast.LENGTH_SHORT) .show();
@@ -180,6 +226,10 @@ public class MainActivity extends BaseClass {
         }
 
     }
-
-
+    @Override
+    public void refresh() {
+        if(downloadAdapter!=null)
+            list= ComponentHolder.getInstance().getDbHelper().getAllModels();
+            downloadAdapter.refresh(list);
+    }
 }

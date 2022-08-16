@@ -72,6 +72,7 @@ public class DownloadTask {
 
         Response response = new Response();
 
+
         if (request.getStatus() == Status.CANCELLED) {
             response.setCancelled(true);
             return response;
@@ -355,7 +356,9 @@ public class DownloadTask {
             ComponentHolder.getInstance().getDbHelper()
                     .updateProgress(request.getDownloadId(),
                             request.getDownloadedBytes(),
-                            System.currentTimeMillis());
+                            System.currentTimeMillis(),
+                            request.getSpeed(),
+                            request.getStatus());
         }
 
     }

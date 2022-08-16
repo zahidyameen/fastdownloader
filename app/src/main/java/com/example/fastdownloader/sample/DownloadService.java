@@ -10,6 +10,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -46,6 +47,24 @@ public class DownloadService extends Service {
         //Start download process
         downloadFile();
     }
+    private final IBinder binder = new LocalBinder();
+    // Registered callbacks
+    private DownloadListener serviceCallbacks;
+    // Class used for the client Binder.
+    public class LocalBinder extends Binder {
+        DownloadService getService() {
+            // Return this instance of MyService so clients can call public methods
+            return DownloadService.this;
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+    public void setCallbacks(DownloadListener callbacks) {
+        serviceCallbacks = callbacks;
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -55,6 +74,7 @@ public class DownloadService extends Service {
                 case Strings.DOWNLOAD:
                     String url=intent.getStringExtra(Strings.URL);
                     String name=intent.getStringExtra(Strings.NAME);
+                    Log.e("sssskkssk",url+"\n"+name);
                     addToDownload(url,name);
                     break;
                 case Strings.PAUSE:
@@ -74,7 +94,6 @@ public class DownloadService extends Service {
                     break;
             }
         }
-
         return FLAG;
     }
 
@@ -83,10 +102,7 @@ public class DownloadService extends Service {
         super.onDestroy();
     }
     @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
+
     private void downloadFile() {
         startInForeground();
         //Logic to download the file.
@@ -108,19 +124,29 @@ public class DownloadService extends Service {
                 .setOnStartOrResumeListener(new OnStartOrResumeListener() {
                     @Override
                     public void onStartOrResume() {
-                        EventBus.getDefault().post(new MessageEvent());
+                       // EventBus.getDefault().post(new MessageEvent());
+                        if (serviceCallbacks != null) {
+                            serviceCallbacks.refresh();
+                        }
+                        Log.e("dkkdkkdkkkd","Started");
                     }
                 })
                 .setOnPauseListener(new OnPauseListener() {
                     @Override
                     public void onPause() {
-
+                        Log.e("dkkdkkdkkkd","onPause");
+                        if (serviceCallbacks != null) {
+                            serviceCallbacks.refresh();
+                        }
                     }
                 })
                 .setOnCancelListener(new OnCancelListener() {
                     @Override
                     public void onCancel() {
-
+                        Log.e("dkkdkkdkkkd","onCancel");
+                        if (serviceCallbacks != null) {
+                            serviceCallbacks.refresh();
+                        }
                     }
                 })
                 .setOnProgressListener(new OnProgressListener() {
@@ -130,6 +156,9 @@ public class DownloadService extends Service {
                         Log.e("dkkdkkdkkkd","Total:"+ConvertSize(progress.totalBytes)+
                                 "\t"+"Downloaded:"+ConvertSize(progress.currentBytes)
                                 +"\t"+"speed:"+ConvertSize(progress.receivedBytes));
+                        if (serviceCallbacks != null) {
+                            serviceCallbacks.refresh();
+                        }
 
                     }
                 })
@@ -138,11 +167,17 @@ public class DownloadService extends Service {
                     public void onDownloadComplete() {
                         Log.e("dkkdkkdkkkd","download completed ");
                         sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(filePath))));
+                        if (serviceCallbacks != null) {
+                            serviceCallbacks.refresh();
+                        }
                     }
 
                     @Override
                     public void onError(Error error) {
-
+                        Log.e("dkkdkkdkkkd","error:"+error.getServerErrorMessage());
+                        if (serviceCallbacks != null) {
+                            serviceCallbacks.refresh();
+                        }
                     }
                 });
     }

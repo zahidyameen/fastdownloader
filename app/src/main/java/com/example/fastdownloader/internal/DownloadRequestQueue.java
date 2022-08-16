@@ -60,15 +60,11 @@ public class DownloadRequestQueue {
 
     public void pause(int downloadId) {
         DownloadRequest request = currentRequestMap.get(downloadId);
-        if (request != null) {
-            request.setStatus(Status.PAUSED);
-        }
     }
 
     public void resume(int downloadId) {
         DownloadRequest request = currentRequestMap.get(downloadId);
         if (request != null) {
-            request.setStatus(Status.QUEUED);
             request.setFuture(Core.getInstance()
                     .getExecutorSupplier()
                     .forDownloadTasks()
@@ -120,7 +116,6 @@ public class DownloadRequestQueue {
 
     public void addRequest(DownloadRequest request) {
         currentRequestMap.put(request.getDownloadId(), request);
-        request.setStatus(Status.QUEUED);
         request.setSequenceNumber(getSequenceNumber());
         request.setFuture(Core.getInstance()
                 .getExecutorSupplier()

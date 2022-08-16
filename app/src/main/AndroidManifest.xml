@@ -23,12 +23,12 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.example.fastdownloader.sample.DOWNLOAD"/>
-                <action android:name="com.example.fastdownloader.sample.PAUSE"/>
-                <action android:name="com.example.fastdownloader.sample.RESUME"/>
-                <action android:name="com.example.fastdownloader.sample.CANCEL"/>
-                <action android:name="com.example.fastdownloader.sample.CANCEL_ALL"/>
-                <action android:name="com.example.fastdownloader.sample.CLEAN_UP"/>
+                <action android:name="com.example.fastdownloader.sample.Strings.DOWNLOAD"/>
+                <action android:name="com.example.fastdownloader.sample.Strings.PAUSE"/>
+                <action android:name="com.example.fastdownloader.sample.Strings.RESUME"/>
+                <action android:name="com.example.fastdownloader.sample.Strings.CANCEL"/>
+                <action android:name="com.example.fastdownloader.sample.Strings.CANCEL_ALL"/>
+                <action android:name="com.example.fastdownloader.sample.Strings.CLEAN_UP"/>
             </intent-filter>
         </receiver>
 

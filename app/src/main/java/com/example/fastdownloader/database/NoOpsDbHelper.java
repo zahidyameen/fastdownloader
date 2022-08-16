@@ -16,6 +16,8 @@
 
 package com.example.fastdownloader.database;
 
+import com.example.fastdownloader.Status;
+
 import java.util.List;
 
 /**
@@ -44,7 +46,7 @@ public class NoOpsDbHelper implements DbHelper {
     }
 
     @Override
-    public void updateProgress(int id, long downloadedBytes, long lastModifiedAt) {
+    public void updateProgress(int id, long downloadedBytes, long lastModifiedAt, long speed, Status status) {
 
     }
 

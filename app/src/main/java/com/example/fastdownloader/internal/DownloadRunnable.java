@@ -40,7 +40,6 @@ public class DownloadRunnable implements Runnable {
 
     @Override
     public void run() {
-        request.setStatus(Status.RUNNING);
         DownloadTask downloadTask = DownloadTask.create(request);
         Response response = downloadTask.run();
         if (response.isSuccessful()) {

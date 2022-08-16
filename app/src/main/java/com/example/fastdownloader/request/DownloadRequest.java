@@ -217,9 +217,6 @@ public class DownloadRequest {
         return status;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
 
     public OnProgressListener getOnProgressListener() {
         return onProgressListener;
@@ -259,7 +256,7 @@ public class DownloadRequest {
 
     public void deliverError(final Error error) {
         if (status != Status.CANCELLED) {
-            setStatus(Status.FAILED);
+           status=Status.FAILED;
             Core.getInstance().getExecutorSupplier().forMainThreadTasks()
                     .execute(new Runnable() {
                         public void run() {
@@ -274,7 +271,7 @@ public class DownloadRequest {
 
     public void deliverSuccess() {
         if (status != Status.CANCELLED) {
-            setStatus(Status.COMPLETED);
+            status=Status.COMPLETED;
             Core.getInstance().getExecutorSupplier().forMainThreadTasks()
                     .execute(new Runnable() {
                         public void run() {
@@ -289,6 +286,7 @@ public class DownloadRequest {
 
     public void deliverStartEvent() {
         if (status != Status.CANCELLED) {
+            status=Status.RUNNING;
             Core.getInstance().getExecutorSupplier().forMainThreadTasks()
                     .execute(new Runnable() {
                         public void run() {
@@ -302,6 +300,7 @@ public class DownloadRequest {
 
     public void deliverPauseEvent() {
         if (status != Status.CANCELLED) {
+            status=Status.PAUSED;
             Core.getInstance().getExecutorSupplier().forMainThreadTasks()
                     .execute(new Runnable() {
                         public void run() {
@@ -314,6 +313,7 @@ public class DownloadRequest {
     }
 
     private void deliverCancelEvent() {
+        status=Status.CANCELLED;
         Core.getInstance().getExecutorSupplier().forMainThreadTasks()
                 .execute(new Runnable() {
                     public void run() {
@@ -326,6 +326,7 @@ public class DownloadRequest {
 
     public void cancel() {
         status = Status.CANCELLED;
+        Utils.status(status);
         if (future != null) {
             future.cancel(true);
         }

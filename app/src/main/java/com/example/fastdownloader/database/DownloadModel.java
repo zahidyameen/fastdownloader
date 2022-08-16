@@ -32,8 +32,8 @@ public class DownloadModel {
     static final String TOTAL_BYTES = "total_bytes";
     static final String DOWNLOADED_BYTES = "downloaded_bytes";
     static final String LAST_MODIFIED_AT = "last_modified_at";
-    static final String STATUS = "last_modified_at";
-    static final String SPEED = "last_modified_at";
+    static final String STATUS = "status";
+    static final String SPEED = "speed";
 
 
     private int id;

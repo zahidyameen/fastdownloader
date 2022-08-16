@@ -16,6 +16,8 @@
 
 package com.example.fastdownloader.database;
 
+import com.example.fastdownloader.Status;
+
 import java.util.List;
 
 /**
@@ -30,7 +32,7 @@ public interface DbHelper {
 
     void update(DownloadModel model);
 
-    void updateProgress(int id, long downloadedBytes, long lastModifiedAt);
+    void updateProgress(int id, long downloadedBytes, long lastModifiedAt, long speed, Status status);
 
     void remove(int id);
 

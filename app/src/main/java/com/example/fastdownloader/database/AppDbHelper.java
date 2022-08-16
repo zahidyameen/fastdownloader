@@ -23,6 +23,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.example.fastdownloader.Status;
 
@@ -116,11 +117,14 @@ public class AppDbHelper implements DbHelper {
     }
 
     @Override
-    public void updateProgress(int id, long downloadedBytes, long lastModifiedAt) {
+    public void updateProgress(int id, long downloadedBytes, long lastModifiedAt,long speed,Status status) {
         try {
             ContentValues values = new ContentValues();
             values.put(DownloadModel.DOWNLOADED_BYTES, downloadedBytes);
             values.put(DownloadModel.LAST_MODIFIED_AT, lastModifiedAt);
+            values.put(DownloadModel.SPEED, speed);
+            values.put(DownloadModel.STATUS, status(status));
+            Log.e("djdjdjdj"," n"+ status(status));
             db.update(TABLE_NAME, values, DownloadModel.ID + " = ? ",
                     new String[]{String.valueOf(id)});
         } catch (Exception e) {
@@ -181,7 +185,7 @@ public class AppDbHelper implements DbHelper {
         List<DownloadModel> models = new ArrayList<>();
         Cursor cursor = null;
         try {
-            cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME +" order by "+DownloadModel.LAST_MODIFIED_AT +" ASC", null);
+            cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME , null);
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     DownloadModel model = new DownloadModel();

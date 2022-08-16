@@ -122,29 +122,33 @@ public final class Utils {
         }
     }
     public static int status(Status status) {
-        switch (status){
-            case RUNNING:
-                return 1;
+        if(status!=null){
+            switch (status){
+                case RUNNING:
+                    return 1;
 
-            case PAUSED:
-                return 2;
+                case PAUSED:
+                    return 2;
 
-            case COMPLETED:
-                return 3;
+                case COMPLETED:
+                    return 3;
 
-            case CANCELLED:
-                return 4;
+                case CANCELLED:
+                    return 4;
 
-            case FAILED:
-                return 5;
+                case FAILED:
+                    return 5;
 
-            case UNKNOWN:
-                return 6;
-            default:
-                return 0;
+                case UNKNOWN:
+                    return 6;
+                default:
+                    return 0;
+            }
         }
+        return 0;
     }
     public static Status status(int status) {
+
         switch (status){
             case 1:
                 return RUNNING;
